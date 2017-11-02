@@ -15,19 +15,28 @@ class SebFixedAlloc:
     def current_portfolio_value(self, sum):
         self._sum = sum
 
+    def _realloc(self, fixed_alloc, sum):
+        return fixed_alloc * sum
+
+    def _calc_new_result(self, fund, realloc_sum):        
+        start_quote = fund.loc[self._start_date].quote
+        end_quote = fund.loc[self._end_date].quote
+        return realloc_sum * end_quote / start_quote
+
+    def _get_available_funds(self):
+        funds = self._fund_ops.filter_interval(self._funds, 
+                                               self._start_date, 
+                                               self._end_date)
+        return funds
+        
     def execute(self):
-        self._new_sum = 0
-        funds_in_interval = self._fund_ops.filter_interval(self._funds, 
-                                                           self._start_date, 
-                                                           self._end_date)
+        new_sum = 0
+        funds_in_interval = self._get_available_funds()
 
         for name in self._fixed_alloc:
             if name not in funds_in_interval:
                 raise Exception("Fund not found in i interval")
-            alloc = self._fixed_alloc[name] * self._sum
-            fund = self._funds[name]
-            start_quote = fund.loc[self._start_date].quote
-            end_quote = fund.loc[self._end_date].quote
-            self._new_sum += alloc * end_quote / start_quote
+            realloc_sum = self._realloc(self._fixed_alloc[name], self._sum)
+            new_sum += self._calc_new_result(self._funds[name], realloc_sum)
 
-        print(self._new_sum)
+        print(new_sum)

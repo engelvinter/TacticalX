@@ -7,11 +7,13 @@ import SebLoad
 import SebCollect
 import SebGraphDisplay
 import CollectService
+import SebFundOperations
 
 class Factory:
     def __init__(self):
         self._db_path = "./db"
         self._graph_path = "./graph"
+        self._fund_min_days = 360
 
     def create_downloader(self, date):
         return SebDownload.SebDownload("https://seb.se/pow/fmk/2100", date)
@@ -30,7 +32,10 @@ class Factory:
         return CollectService.CollectService(first_date, self._db_path, self)
 
     def create_loader(self, fund_names):
-        return SebLoad.SebLoad(self._db_path, fund_names)
+        return SebLoad.SebLoad(self._db_path, fund_names, self._fund_min_days)
 
     def create_graph_display(self, dataframe):
         return SebGraphDisplay.SebGraphDisplay(dataframe, self._graph_path)
+
+    def create_fund_operations(self):
+        return SebFundOperations.SebFundOperations()
