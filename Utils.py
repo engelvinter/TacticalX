@@ -15,9 +15,11 @@ def all_fund_names():
     fund_names = [os.path.splitext(os.path.basename(file_name))[0] for file_name in files]
     return fund_names
 
-def load_all():
+def load_all(fund_names = None):
     f = Factory.Factory()
-    l = f.create_loader(all_fund_names())
+    if fund_names is None:
+        fund_names = all_fund_names()
+    l = f.create_loader(fund_names)
     funds = l.execute()
     return funds
 
