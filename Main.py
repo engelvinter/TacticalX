@@ -4,21 +4,24 @@ import Factory as Factory
 
 import Utils
 
-import pandas as pd
-
-import datetime as dt
-
 import SebRebalance
 
-import StratFactory
+import StrategyFactory
+
+import SebFundOperations
 
 #if __name__ == "__main__":
 
+start = datetime(1999, 2, 26)
+end = datetime(2017, 10, 30)
+ops = SebFundOperations.SebFundOperations()
 
 funds = Utils.load_all(["SEB Europafond"])
+ops.add_cash(funds, start, end)
 
+allocation = { "SEB Europafond" : 1.0}
+sf = StrategyFactory.StrategyFactory(funds, start, end)
+r = sf.create_rebalanced(allocation)
 
-r = StratFactory.create_buy_and_hold(funds)
-
-p  = r.execute()
-
+portfolio = { "SEB Europafond" : 100 }
+p = r.execute(portfolio)

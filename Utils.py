@@ -3,6 +3,8 @@ import glob
 import os.path
 import os
 
+import pandas as pd
+
 import Factory as Factory
 
 def collect():
@@ -27,3 +29,4 @@ def graph(fund):
     f = Factory.Factory()
     g = f.create_graph_display(fund)
     g.execute()
+

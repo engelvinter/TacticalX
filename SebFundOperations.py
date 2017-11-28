@@ -1,6 +1,8 @@
 
 import re
 
+import pandas as pd
+
 class SebFundOperations:
     def __init__(self):
         pass
@@ -10,6 +12,14 @@ class SebFundOperations:
         fund_end = fund.iloc[-1].name
         
         return fund_start, fund_end
+
+    def add_cash(self, funds, start, end):
+        df  = pd.DataFrame(index = pd.date_range(start, end))
+        df['quote'] = 100
+        df['id'] = 0
+        df['change'] = 0
+        df.name = 'Cash'
+        funds[df.name] = df
 
     def filter_interval(self, funds, start, end):
         available_funds = []

@@ -28,7 +28,8 @@ class SebLoad:
 
     def _add_change(self, df):
         df['change'] = df.quote.pct_change()
-    
+        df['since_start'] = df.quote / df.quote.iloc[0]
+
     def _adjust_fund_remake(self,df):
         contains_id_nbr = df.id.apply(lambda x: np.isreal(x)).all()
         if not contains_id_nbr:
