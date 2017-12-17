@@ -25,8 +25,8 @@ def load_all(fund_names = None):
     funds = l.execute()
     return funds
 
-def graph(fund):
+def graph(timeseries):
     f = Factory.Factory()
-    g = f.create_graph_display(fund)
+    g = f.create_graph_display(timeseries)
     g.execute()
 

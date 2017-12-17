@@ -9,6 +9,8 @@ import SebGraphDisplay
 import CollectService
 import SebFundOperations
 
+import logging
+
 class Factory:
     def __init__(self):
         self._db_path = "./db"
@@ -34,8 +36,16 @@ class Factory:
     def create_loader(self, fund_names):
         return SebLoad.SebLoad(self._db_path, fund_names, self._fund_min_days)
 
-    def create_graph_display(self, dataframe):
-        return SebGraphDisplay.SebGraphDisplay(dataframe, self._graph_path)
+    def create_graph_display(self, timeseries):
+        return SebGraphDisplay.SebGraphDisplay(timeseries, self._graph_path)
 
     def create_fund_operations(self):
         return SebFundOperations.SebFundOperations()
+
+    def create_transaction_logger(self):
+        f = logging.FileHandler("transactions.txt")
+        l = logging.getLogger("transaction")
+        l.setLevel(logging.INFO)
+        l.addHandler(f)
+
+        return l
