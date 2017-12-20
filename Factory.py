@@ -43,7 +43,7 @@ class Factory:
         return SebFundOperations.SebFundOperations()
 
     def create_transaction_logger(self):
-        f = logging.FileHandler("transactions.txt")
+        f = logging.FileHandler("transactions.txt", mode='w')
         l = logging.getLogger("transaction")
         l.setLevel(logging.INFO)
         l.addHandler(f)

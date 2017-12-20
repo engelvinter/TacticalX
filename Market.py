@@ -1,5 +1,7 @@
 from ProcessOrder import ProcessOrder
 
+from SebFundOperations import SebFundOperations
+
 class Market:
     class Order:
         def __init__(self, fund_name, percentage):
@@ -12,6 +14,7 @@ class Market:
         self._orders = []
         self._logger = None
 
+    # to reach or amount to sell???????
     def place_order(self, fund_name, percentage_portfolio):
         self._orders.append(Market.Order(fund_name, percentage_portfolio))
 
@@ -23,13 +26,38 @@ class Market:
 
     def order_depth(self):
         return len(self._orders)
+    
+    def forced_sell_funds(self, date):
+        s = SebFundOperations()
+        fund_names = list(self._portfolio.get_all_fund_names())
+        for fund_name in fund_names:
+            (_, end) = s.get_interval(self._funds[fund_name])
+            delta = end - date
+            # Check if fund is closing
+            if delta.days is 0:
+                # Force selling of fund at last day
+                order = Market.Order(fund_name, 0.0)
+                self.process_order(date, order)
+
+    def simulate_business_day(self, date):
+        if self.order_depth() > 0:
+            self.process_orders(date)
         
+        portfolio_value = sum(self.calc_portfolio_value(date).values())
+
+        self.forced_sell_funds(date)
+        
+        return portfolio_value
+
+    def process_order(self, date, order):
+        p = ProcessOrder(date, self._funds, self._portfolio, self._logger)
+        p.execute(order)
+
     def process_orders(self, date):
         for order in self._orders[:]:
             # only process orders where fund has a quote of the actual date
             if date in self._funds[order.fund_name].index:
-                p = ProcessOrder(date, self._funds, self._portfolio, self._logger)
-                p.execute(order)
+                self.process_order(date, order)
                 self._close_order(order)
 
     #reallocate portfolio

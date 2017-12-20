@@ -3,15 +3,14 @@ import pandas as pd
 
 from dateutil import parser as date_parser
 
+from Portfolio import Portfolio
+
+from DateUtil import assign_date
+
 class Simulate:
     def __init__(self, start_date, end_date):
-        try:
-            self._start_date = date_parser.parse(start_date)
-            self._end_date = date_parser.parse(end_date)
-        except TypeError:
-            self._start_date = start_date
-            self._end_date = end_date
-
+        self._start_date = assign_date(start_date)
+        self._end_date = assign_date(end_date)
         self._reallocations = {}
 
     def _add_reallocation(self, date, reallocation):
@@ -37,15 +36,12 @@ class Simulate:
 
         for date in range:
             try:
-                if market.order_depth() > 0:
-                    market.process_orders(date)
+                result[date] = market.simulate_business_day(date)
 
                 if date in self._reallocations:
                     self._reallocations[date].execute(date, market)
 
-                result[date] = sum(market.calc_portfolio_value(date).values())
-
-            except Exception:
+            except Portfolio.CalcValueException:
                 pass
 
         return result.dropna()

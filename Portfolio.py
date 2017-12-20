@@ -10,6 +10,9 @@ class Portfolio :
     def get_all_fund_shares(self):
         return self._portfolio.items()
 
+    def get_all_fund_names(self):
+        return self._portfolio.keys()
+    
     def fund_shares(self, fund_name):
         return self._portfolio[fund_name]
     
@@ -34,7 +37,10 @@ class Portfolio :
 
         self._portfolio[fund_name] -= shares
         
-    
+        # If fund down to zero i.e remove fund from portfolio
+        if self._portfolio[fund_name] == 0.0:
+            del self._portfolio[fund_name]
+
     def increase_cash(self, amount):
         self._cash += amount
     
@@ -43,6 +49,9 @@ class Portfolio :
             raise Exception("Cannot decrease cash with {0} (only {1} left)", amount, self._cash)
 
         self._cash -= amount
+
+    class CalcValueException(Exception):
+        pass
 
     def calc_value(self, date, funds):
         value = {}
@@ -55,7 +64,7 @@ class Portfolio :
                 fund_value = shares * quote
                 value[fund_name] = fund_value
         except KeyError:
-            raise Exception("Not able to calculate any value {0}", date)
+            raise Portfolio.CalcValueException("Not able to calculate any value {0}", date)
 
         return value
 

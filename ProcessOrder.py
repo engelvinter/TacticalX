@@ -65,6 +65,6 @@ class ProcessOrder:
         if amount > 0:
             self._buy(order.fund_name, amount)
         else:
-            self._sell(order.fund_name, amount)
+            self._sell(order.fund_name, abs(amount))
 
         self._log_transaction(order.fund_name, target_delta)
