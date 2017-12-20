@@ -22,6 +22,11 @@ class SebLoad:
         df = df[~df.index.duplicated()]
         return df
 
+    def _remove_strange_values(self, df):
+        df = df.dropna()
+        df = df[df.quote != 0]
+        return df
+
     def _add_fund(self, funds, df, fund_name):
         df.name = fund_name   
         funds[fund_name] = df
@@ -30,7 +35,7 @@ class SebLoad:
         df['change'] = df.quote.pct_change()
         df['since_start'] = df.quote / df.quote.iloc[0]
 
-    def _adjust_fund_remake(self,df):
+    def _adjust_fund_remake(self, df):
         contains_id_nbr = df.id.apply(lambda x: np.isreal(x)).all()
         if not contains_id_nbr:
             return
@@ -60,6 +65,7 @@ class SebLoad:
     def _do_operations_on_dataset(self, df):
         df = self._set_index_date(df)
         df = self._remove_duplicates(df)
+        df = self._remove_strange_values(df)
         self._adjust_fund_remake(df)
         self._adjust_fund_abnormal(df)
         self._add_change(df)
