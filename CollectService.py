@@ -7,7 +7,7 @@ class CollectService:
         self._first_date = first_date
         self._path = db_path
         self._factory = factory
-        self._last_updated = "{0}/._last_updated.txt".format(self._path)
+        self._last_updated = os.path.join(self._path, "._last_updated.txt")
 
     def _set_last_updated(self, actual_date):
         date_str = "{0:%Y-%m-%d}".format(actual_date)
@@ -27,6 +27,9 @@ class CollectService:
         today = datetime.datetime.now().date()
         one_day = datetime.timedelta(days=1)
 
+        if not os.path.exists(self._path):
+            os.mkdir(self._path)
+            
         if os.path.isfile(self._last_updated):
             last_updated = self._get_last_updated() 
 

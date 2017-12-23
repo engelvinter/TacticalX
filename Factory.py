@@ -1,5 +1,7 @@
 from datetime import date
 
+import os
+
 import SebDownload
 import SebExtract
 import SebStore
@@ -13,8 +15,8 @@ import logging
 
 class Factory:
     def __init__(self):
-        self._db_path = "./db"
-        self._graph_path = "./graph"
+        self._db_path = os.path.join(".", "db")
+        self._graph_path = os.path.join(".", "graph")
         self._fund_min_days = 360
 
     def create_downloader(self, date):

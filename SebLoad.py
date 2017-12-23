@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import timeit
+import os
 
 class SebLoad:
     def __init__(self, db_path, fund_names, min_days):
@@ -9,8 +10,13 @@ class SebLoad:
         self._min_days = min_days
 
     def _read_file(self, path, fund_name):
-        filename = "{0}/{1}.csv".format(path, fund_name)
-        df = pd.read_csv(filename)
+        filename = "{0}.csv".format(fund_name)
+        filepath = os.path.join(path, filename)
+
+        # Workaround for bug #15086
+        filehandle = open(filepath, "r")
+
+        df = pd.read_csv(filehandle)
         return df
 
     def _set_index_date(self, df):

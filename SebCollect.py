@@ -46,8 +46,6 @@ class SebCollect:
             print(actual_date)
             try:
                 self._collect_funds(actual_date)
-            except IOError:
-                pass
             except KeyError:
                 pass
 

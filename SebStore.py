@@ -9,7 +9,8 @@ class SebStore:
 
     def execute(self):
         for fund in self._funds:
-            filename = "{0}/{1}.csv".format(self._path, fund)
-            header = False if os.path.isfile(filename) else True
-            with open(filename, 'a') as f:
+            filename = "{0}.csv".format(fund)
+            filepath = os.path.join(self._path, filename)
+            header = False if os.path.isfile(filepath) else True
+            with open(filepath, 'a') as f:
                 self._funds[fund].to_csv(f, header = header)
