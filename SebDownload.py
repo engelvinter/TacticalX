@@ -11,6 +11,6 @@ class SebDownload:
         url = '{0}/fonder_{1}.TXT'.format(self._url, date_str)
         req = requests.get(url)
         if req.status_code is not 200:
-            raise IOError("Failed to download {0}, since status code is {1}".format(url, req.status_code))
+            raise IOError(req.status_code, "Failed to download {0}, since status code is {1}".format(url, req.status_code))
 
         return req.content.decode("iso-8859-1")

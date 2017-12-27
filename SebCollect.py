@@ -6,6 +6,7 @@ class SebCollect:
         self._factory = factory
         self._funds = funds
         self._fund_names = []
+        self.FILE_NOT_FOUND = 404
 
     def set_selected_funds(self, fund_names):
         self._fund_names = fund_names
@@ -46,6 +47,10 @@ class SebCollect:
             print(actual_date)
             try:
                 self._collect_funds(actual_date)
+            except IOError as e:
+                if not e.errno == FILE_NOT_FOUND:
+                    print(e)
+                pass
             except KeyError:
                 pass
 
