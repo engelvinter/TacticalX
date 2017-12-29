@@ -17,7 +17,18 @@ class SebCollect:
     def _all_funds(self, name):
         return True
 
+    def _remove_garbage(self, string):
+        if '?' in string:
+            string = string.replace('?', ' ')
+
+        items = string.split(' ')
+        words = [item for item in items if item]
+        string = " ".join(words)
+        return string
+
     def _fund_callback(self, date, name, quote, row_id):
+        name = self._remove_garbage(name)
+
         if not self._is_selected(name):
             return
         
@@ -48,7 +59,7 @@ class SebCollect:
             try:
                 self._collect_funds(actual_date)
             except IOError as e:
-                if not e.errno == FILE_NOT_FOUND:
+                if not e.errno == self.FILE_NOT_FOUND:
                     print(e)
                 pass
             except KeyError:
