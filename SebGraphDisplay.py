@@ -3,6 +3,8 @@ import pandas as pd
 from bokeh.plotting import figure, output_file, show
 from bokeh.models import DatetimeTickFormatter
 
+import os
+
 class SebGraphDisplay:
     def __init__(self, timeseries, graph_path):
         self._timeseries = timeseries
@@ -20,6 +22,11 @@ class SebGraphDisplay:
                                                 months=["%Y %m %d"],
                                                 years=["%Y %m %d"])
 
-        output_file("{0}/{1}.html".format(self._graph_path, self._timeseries.name))
+        filename = "{0}.html".format(self._timeseries.name)
+
+        if not os.path.exists(self._graph_path):
+            os.mkdir(self._graph_path)
+
+        output_file(os.path.join(self._graph_path, filename))
 
         show(p)
