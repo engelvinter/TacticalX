@@ -25,11 +25,11 @@ def test_algo():
 
     #allocation = { "SEB Europafond" : 1.0}
 
-    #allocation = { "SEB Europafond" : 0.5, "SEB Världenfond" : 0.5 }
+    allocation = { "SEB Europafond" : 0.5, "SEB Världenfond" : 0.5 }
 
     #allocation = { "SEB Europafond" : 0.5 }
 
-    allocation = { "SEB Hedgefond" : 1.0 }
+    #allocation = { "SEB Hedgefond" : 1.0 }
 
     algo = BuyAndHold.BuyAndHold(allocation)
     #algo = Rebalance.Rebalance(allocation)
@@ -41,8 +41,7 @@ def test_algo():
 
     f = Factory.Factory()
     logger = f.create_transaction_logger()
-    m = Market.Market(funds, p)
-    m.register_transaction_logger(logger)
+    m = Market.Market(funds, p, logger)
 
     res = s.execute(m)
 
@@ -54,4 +53,4 @@ def test_collect():
     Utils.collect()
 
 
-test_collect()
+test_algo()
