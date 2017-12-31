@@ -46,13 +46,13 @@ class ProcessReallocations:
             return
         
         # How much is this delta in portfolio value?
-        amount = self._calc_amount(date, target_delta)
+        amount = round(self._calc_amount(date, target_delta), 1)
 
         if amount > 0:
             self._process_orders.add_buy_order(realloc.fund_name, amount)
         else:
             self._process_orders.add_sell_order(realloc.fund_name, abs(amount))
-
+            
     def execute(self, date):
         if not self._reallocations:
             return

@@ -18,7 +18,7 @@ class ProcessOrders:
     
     def add_sell_order(self, fund_name, amount):
         order = ProcessOrders.Order(fund_name, amount)
-        self._buy_orders.append(order)
+        self._sell_orders.append(order)
     
     def _calc_shares(self, fund_name, date, amount):
         quote = self._funds[fund_name].loc[date].quote
@@ -29,7 +29,7 @@ class ProcessOrders:
         if self._logger is None:
             return
 
-        self._logger.warning("Warning: Decreased amount in %s from %d to %d because of cash shortage", 
+        self._logger.warning("Warning: Decreased amount in %s from %.1f to %.1f because of cash shortage", 
                              fund_name, 
                              initial_amount, 
                              amount)
@@ -44,7 +44,7 @@ class ProcessOrders:
         # First calc nbr of shares
         shares = self._calc_shares(order.fund_name, date, order.amount)
         # Since we are buying, first decrease cash
-        self._portfolio.decrease_cash(order.amount)
+        self._portfolio.decrease_cash(round(order.amount, 1))
         # then "buy" and increase the shares of the fund
         self._portfolio.increase_fund(order.fund_name, shares)
 
@@ -56,7 +56,7 @@ class ProcessOrders:
         # Since we are selling, first "sell" and decrease the shares of the fund
         self._portfolio.decrease_fund(order.fund_name, shares)
         # then increase cash
-        self._portfolio.increase_cash(order.amount)
+        self._portfolio.increase_cash(round(order.amount, 1))
 
         self._log_closed_order("Sold", order.fund_name, order.amount)
 
