@@ -25,20 +25,25 @@ class ProcessOrders:
         shares = amount / quote
         return shares
 
-    def _log_warning(self, fund_name, initial_amount, amount):
+    def _log_warning(self, date, fund_name, initial_amount, amount):
         if self._logger is None:
             return
 
-        self._logger.warning("Warning: Decreased amount in %s from %.1f to %.1f because of cash shortage", 
+        self._logger.warning("%s Warning: Decreased amount in %s from %.1f to %.1f because of cash shortage",
+                             date.strftime('%Y-%m-%d'),
                              fund_name, 
                              initial_amount, 
                              amount)
 
-    def _log_closed_order(self, text, fund_name, amount):
+    def _log_closed_order(self, date, text, fund_name, amount):
         if self._logger is None:
             return
         
-        self._logger.info("%s %s %d Skr", text, fund_name, amount)
+        self._logger.info("%s %s %s %d Skr", 
+                          date.strftime('%Y-%m-%d'), 
+                          text, 
+                          fund_name, 
+                          amount)
 
     def _execute_buy_order(self, date, order):
         # First calc nbr of shares
@@ -48,7 +53,7 @@ class ProcessOrders:
         # then "buy" and increase the shares of the fund
         self._portfolio.increase_fund(order.fund_name, shares)
 
-        self._log_closed_order("Bought", order.fund_name, order.amount)
+        self._log_closed_order(date, "Bought", order.fund_name, order.amount)
 
     def _execute_sell_order(self, date, order):
          # First calc nbr of shares
@@ -58,7 +63,7 @@ class ProcessOrders:
         # then increase cash
         self._portfolio.increase_cash(round(order.amount, 1))
 
-        self._log_closed_order("Sold", order.fund_name, order.amount)
+        self._log_closed_order(date, "Sold", order.fund_name, order.amount)
 
     def execute_sell_orders(self, date):
         for order in self._sell_orders:
@@ -70,7 +75,7 @@ class ProcessOrders:
             if order.amount > self._portfolio.current_cash():
                 old_amount = order.amount
                 order.amount = self._portfolio.current_cash()
-                self._log_warning(order.fund_name, old_amount, order.amount)
+                self._log_warning(date, order.fund_name, old_amount, order.amount)
 
             self._execute_buy_order(date, order)
         self._buy_orders = []
