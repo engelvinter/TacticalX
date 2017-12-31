@@ -31,17 +31,16 @@ class Simulate:
             self._add_reallocation(date, algorithm)
 
     def execute(self, market):
-        range = pd.date_range(start=self._start_date, end=self._end_date, freq="B").tolist()
+        range = pd.date_range(start=self._start_date, end=self._end_date, freq="D").tolist()
         result = pd.Series(index=range)
 
         for date in range:
             try:
                 result[date] = market.simulate_business_day(date)
-
-                if date in self._reallocations:
-                    self._reallocations[date].execute(date, market)
-
             except Portfolio.CalcValueException:
                 pass
 
+            if date in self._reallocations:
+                self._reallocations[date].execute(date, market)
+                
         return result.dropna()
