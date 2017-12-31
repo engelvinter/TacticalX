@@ -34,10 +34,11 @@ class ProcessOrders:
                              initial_amount, 
                              amount)
 
-    def _log_closed_order(self):
+    def _log_closed_order(self, text, fund_name, amount):
         if self._logger is None:
             return
-        pass
+        
+        self._logger.info("%s %s %d Skr", text, fund_name, amount)
 
     def _execute_buy_order(self, date, order):
         # First calc nbr of shares
@@ -47,6 +48,8 @@ class ProcessOrders:
         # then "buy" and increase the shares of the fund
         self._portfolio.increase_fund(order.fund_name, shares)
 
+        self._log_closed_order("Bought", order.fund_name, order.amount)
+
     def _execute_sell_order(self, date, order):
          # First calc nbr of shares
         shares = self._calc_shares(order.fund_name, date, order.amount)
@@ -54,6 +57,8 @@ class ProcessOrders:
         self._portfolio.decrease_fund(order.fund_name, shares)
         # then increase cash
         self._portfolio.increase_cash(order.amount)
+
+        self._log_closed_order("Sold", order.fund_name, order.amount)
 
     def execute_sell_orders(self, date):
         for order in self._sell_orders:
