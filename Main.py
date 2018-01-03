@@ -15,6 +15,9 @@ import Market
 
 import Portfolio
 
+import Evaluate
+
+import Print
 
 def test_algo():
     start = datetime(1999, 2, 26)
@@ -31,8 +34,8 @@ def test_algo():
 
     #allocation = { "SEB Hedgefond" : 1.0 }
 
-    algo = BuyAndHold.BuyAndHold(allocation)
-    #algo = Rebalance.Rebalance(allocation)
+    #algo = BuyAndHold.BuyAndHold(allocation)
+    algo = Rebalance.Rebalance(allocation)
 
     s = Simulate.Simulate(start, end)
     s.setup_reallocations(algo, "BAS")
@@ -43,11 +46,17 @@ def test_algo():
     logger = f.create_transaction_logger()
     m = Market.Market(funds, p, logger)
 
-    res = s.execute(m)
+    ts = s.execute(m)
 
-    print(res)
+    #print(res)
 
-    Utils.graph(res)
+    #Utils.graph(res)
+
+    e = Evaluate.Evaluate(ts)
+    result = e.execute()
+
+    pr = Print.Print(result)
+    pr.execute()
 
 def test_collect():
     Utils.collect()
