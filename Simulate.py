@@ -1,7 +1,6 @@
 
-import pandas as pd
 
-from dateutil import parser as date_parser
+import pandas as pd
 
 from Portfolio import Portfolio
 
@@ -11,10 +10,10 @@ class Simulate:
     def __init__(self, start_date, end_date):
         self._start_date = assign_date(start_date)
         self._end_date = assign_date(end_date)
-        self._reallocations = {}
+        self._algorithms = {}
 
-    def _add_reallocation(self, date, reallocation):
-        self._reallocations[date] = reallocation
+    def _add_reallocation(self, date, algorithm):
+        self._algorithms[date] = algorithm
 
     # freq as in pandas.date_range i.e. 
     # yearly => BAS
@@ -40,7 +39,7 @@ class Simulate:
             except Portfolio.CalcValueException:
                 pass
 
-            if date in self._reallocations:
-                self._reallocations[date].execute(date, market)
-                
+            if date in self._algorithms:
+                self._algorithms[date].execute(date, market)
+
         return result.dropna()
