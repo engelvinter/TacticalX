@@ -3,6 +3,8 @@ from ProcessReallocations import ProcessReallocations
 
 from SebFundOperations import SebFundOperations
 
+from DateUtil import assign_date
+
 class Market:
     
     def __init__(self, funds, portfolio, logger = None):
@@ -14,7 +16,23 @@ class Market:
     def add_reallocation(self, fund_name, target_percentage_portfolio):
         self._process_reallocations.add_reallocation(fund_name, target_percentage_portfolio)
     
-    def forced_sell_funds(self, date):
+    def get_available_funds(self, date):
+        date = assign_date(date)
+        avail = {}
+        s = SebFundOperations()        
+        for fund_name in self._funds:
+            fund = self._funds[fund_name]
+            start, end = s.get_interval(fund)
+            if start < date and end >= date:
+                try:
+                    idx = fund.index.get_loc(date, method='bfill')
+                    avail[fund_name] = fund.iloc[:idx]
+                except ValueError:
+                    print("Index error (unordered): {}".format(fund_name))
+
+        return avail
+
+    def _forced_sell_funds(self, date):
         s = SebFundOperations()
         fund_names = list(self._portfolio.get_all_fund_names())
         for fund_name in fund_names:
@@ -31,7 +49,7 @@ class Market:
         
         portfolio_value = sum(self.calc_portfolio_value(date).values())
 
-        self.forced_sell_funds(date)
+        self._forced_sell_funds(date)
         
         return portfolio_value
 
