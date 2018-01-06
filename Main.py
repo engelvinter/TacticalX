@@ -10,6 +10,7 @@ import Simulate
 
 import BuyAndHold
 import Rebalance
+import SMA10
 
 import Market
 
@@ -35,8 +36,9 @@ def test_algo():
     #allocation = { "SEB Hedgefond" : 1.0 }
 
     #algo = BuyAndHold.BuyAndHold(allocation)
-    algo = Rebalance.Rebalance(allocation)
-
+    #algo = Rebalance.Rebalance(allocation)
+    algo = SMA10.SMA10(allocation)
+    
     s = Simulate.Simulate(start, end)
     s.setup_reallocations(algo, "BAS")
 
@@ -50,7 +52,7 @@ def test_algo():
 
     #print(res)
 
-    #Utils.graph(res)
+    Utils.graph(ts)
 
     e = Evaluate.Evaluate(ts)
     result = e.execute()

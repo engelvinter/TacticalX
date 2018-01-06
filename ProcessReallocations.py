@@ -40,13 +40,16 @@ class ProcessReallocations:
 
     def _generate_order(self, date,  realloc):
         # How far from target are we?
-        target_delta = self._target_delta(date, realloc)
+        target_delta = round(self._target_delta(date, realloc), 1)
         if target_delta == 0.0:
             # Fund allocation already on target!
             return
         
         # How much is this delta in portfolio value?
         amount = round(self._calc_amount(date, target_delta), 1)
+        if amount == 0.0:
+            raise Exception("Internal error. Amount of order is zero - {} {}".
+                            format(realloc.fund_name, date.strftime("%Y-%m-%d")))
 
         if amount > 0:
             self._process_orders.add_buy_order(realloc.fund_name, amount)

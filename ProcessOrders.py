@@ -1,4 +1,6 @@
 
+from Portfolio import Portfolio
+
 class ProcessOrders:
     class Order:
         def __init__(self, fund_name, amount):
@@ -25,6 +27,11 @@ class ProcessOrders:
         shares = amount / quote
         return shares
 
+    def _calc_amount(self, fund_name, date, shares):
+        quote = self._funds[fund_name].loc[date].quote
+        amount = shares * quote
+        return amount
+
     def _log_warning(self, date, fund_name, initial_amount, amount):
         if self._logger is None:
             return
@@ -46,10 +53,17 @@ class ProcessOrders:
                           amount)
 
     def _execute_buy_order(self, date, order):
-        # First calc nbr of shares
+        
+        # Since we are buying, first decrease cash to get money
+        try:
+            self._portfolio.decrease_cash(round(order.amount, 1))
+        except Portfolio.OverdrawOfCash:
+            # Ok, not enough left, might be rounding error
+            # Withdraw what we have in cash
+            order.amount = self._portfolio.take_all_cash()
+             
+        # Calc nbr of shares
         shares = self._calc_shares(order.fund_name, date, order.amount)
-        # Since we are buying, first decrease cash
-        self._portfolio.decrease_cash(round(order.amount, 1))
         # then "buy" and increase the shares of the fund
         self._portfolio.increase_fund(order.fund_name, shares)
 
@@ -58,8 +72,16 @@ class ProcessOrders:
     def _execute_sell_order(self, date, order):
          # First calc nbr of shares
         shares = self._calc_shares(order.fund_name, date, order.amount)
+
         # Since we are selling, first "sell" and decrease the shares of the fund
-        self._portfolio.decrease_fund(order.fund_name, shares)
+        try:
+            self._portfolio.decrease_fund(order.fund_name, shares)
+        except:
+            # Ok, not enough shares left, might be rounding error
+            # Take all shares left in that fund
+            shares = self._portfolio.close_fund(order.fund_name)
+            order.amount = self._calc_amount(order.fund_name, date, shares)
+            
         # then increase cash
         self._portfolio.increase_cash(round(order.amount, 1))
 

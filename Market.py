@@ -26,7 +26,8 @@ class Market:
             if start < date and end >= date:
                 try:
                     idx = fund.index.get_loc(date, method='bfill')
-                    avail[fund_name] = fund.iloc[:idx]
+                    # + 1 since we want to include the last date
+                    avail[fund_name] = fund.iloc[:idx + 1]   
                 except ValueError:
                     print("Index error (unordered): {}".format(fund_name))
 

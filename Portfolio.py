@@ -28,12 +28,16 @@ class Portfolio :
         else:
             self._portfolio[fund_name] = shares
 
+    class OverdrawOfShares(Exception):
+        pass
+
     def decrease_fund(self, fund_name, shares):
         if fund_name not in self._portfolio:
             raise Exception("Cannot decrease {0} since it does not exist in portfolio".format(fund_name))
 
         if self._portfolio[fund_name] < shares:
-            raise Exception("Cannot decrease {0} with {1} shares (only {2} left)".format(fund_name, shares, self._portfolio[fund_name]))
+            raise Portfolio.OverdrawOfShares("Cannot decrease {0} with {1} shares (only {2} left)",
+                                              fund_name, shares, self._portfolio[fund_name])
 
         self._portfolio[fund_name] -= shares
         
@@ -41,14 +45,28 @@ class Portfolio :
         if self._portfolio[fund_name] == 0.0:
             del self._portfolio[fund_name]
 
+    def close_fund(self, fund_name):
+        tmp = self._portfolio[fund_name]
+        del self._portfolio[fund_name]
+        return tmp
+    
     def increase_cash(self, amount):
         self._cash += amount
     
+    class OverdrawOfCash(Exception):
+        pass
+
     def decrease_cash(self, amount):
         if self._cash < amount:
-            raise Exception("Cannot decrease cash with {0} (only {1} left)", amount, self._cash)
+            raise Portfolio.OverdrawOfCash("Cannot decrease cash with {0} (only {1} left)", 
+                                            amount, self._cash)
 
         self._cash -= amount
+
+    def take_all_cash(self):
+        tmp = self._cash
+        self._cash = 0
+        return tmp
 
     class CalcValueException(Exception):
         pass
