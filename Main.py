@@ -49,10 +49,9 @@ def test_algo():
     m = Market.Market(funds, p, logger)
 
     ts = s.execute(m)
+    ts.name = "SMA10"
 
-    #print(res)
-
-    Utils.graph(ts)
+    Utils.graph("TAA", ts)
 
     e = Evaluate.Evaluate(ts)
     result = e.execute()

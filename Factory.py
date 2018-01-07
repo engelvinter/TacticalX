@@ -38,8 +38,8 @@ class Factory:
     def create_loader(self, fund_names):
         return SebLoad.SebLoad(self._db_path, fund_names, self._fund_min_days)
 
-    def create_graph_display(self, timeseries):
-        return SebGraphDisplay.SebGraphDisplay(timeseries, self._graph_path)
+    def create_graph_display(self, name):
+        return SebGraphDisplay.SebGraphDisplay(name, self._graph_path)
 
     def create_fund_operations(self):
         return SebFundOperations.SebFundOperations()

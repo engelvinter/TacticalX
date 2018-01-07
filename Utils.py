@@ -25,8 +25,15 @@ def load_all(fund_names = None):
     funds = l.execute()
     return funds
 
-def graph(timeseries):
+def graph(title, *timeseries_list):
+    colors = ["Blue", "Red", "Violet", "Green", "Magenta", "DeepPink", "DarkTurquoise", "DarkOrange"]
+    colorNbr = 0
     f = Factory.Factory()
-    g = f.create_graph_display(timeseries)
-    g.execute()
+    g = f.create_graph_display(title)
+
+    for timeseries in timeseries_list:
+        g.add_timeseries(timeseries, colors[colorNbr % len(colors)])
+        colorNbr += 1
+
+    g.show()
 
