@@ -3,7 +3,8 @@ from datetime import datetime
 
 class SebExtract:
     def __init__(self, content, fund_callback):
-        locale.setlocale(locale.LC_ALL, 'sv_SE.UTF-8')
+        #locale.setlocale(locale.LC_ALL, 'sv_SE.UTF-8')
+        locale.setlocale(locale.LC_ALL, '')
         self._content = content
         self._fund_callback = fund_callback
 
