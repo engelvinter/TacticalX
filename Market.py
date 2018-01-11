@@ -17,22 +17,10 @@ class Market:
         self._process_reallocations.add_reallocation(fund_name, target_percentage_portfolio)
     
     def get_available_funds(self, date):
-        date = assign_date(date)
-        avail = {}
-        s = SebFundOperations()        
-        for fund_name in self._funds:
-            fund = self._funds[fund_name]
-            start, end = s.get_interval(fund)
-            if start < date and end >= date:
-                try:
-                    idx = fund.index.get_loc(date, method='bfill')
-                    # + 1 since we want to include the last date
-                    avail[fund_name] = fund.iloc[:idx + 1]   
-                except ValueError:
-                    print("Index error (unordered): {}".format(fund_name))
-
+        s = SebFundOperations()
+        avail = s.get_available_funds(date, self._funds)
         return avail
-
+    
     def _forced_sell_funds(self, date):
         s = SebFundOperations()
         fund_names = list(self._portfolio.get_all_fund_names())

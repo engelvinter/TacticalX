@@ -20,13 +20,13 @@ import Evaluate
 
 import Print
 
-def test_algo(funds, algo):
-    start = datetime(1999, 2, 26)
+def test_algo(funds, algo, freq):
+    start = datetime(2000, 2, 26)
     end = datetime(2017, 10, 30)
     ops = SebFundOperations.SebFundOperations()
   
     s = Simulate.Simulate(start, end)
-    s.setup_reallocations(algo, "BMS")
+    s.setup_reallocations(algo, freq)
 
     p = Portfolio.Portfolio(10000)
 
@@ -51,7 +51,7 @@ def setup_buy_and_hold():
     return algo
 
 def setup_rebalance():
-    allocation = { "SEB Europafond" : 0.5, "SEB Världenfond" : 0.5 }
+    allocation = { "SEB Europafond" : 0.33, "SEB Världenfond" : 0.33 }
     algo = Rebalance.Rebalance(allocation)
     return algo
 
@@ -66,12 +66,13 @@ def test_collect():
 funds = Utils.load_all(["SEB Europafond", "SEB Världenfond", "SEB Hedgefond"])
 
 algo = setup_buy_and_hold()
-ts1 = test_algo(funds, algo)
+ts1 = test_algo(funds, algo, "AS")
 
 algo = setup_rebalance()
-ts2 = test_algo(funds, algo)
+ts2 = test_algo(funds, algo, "AS")
 
 algo = setup_sma10()
-ts3 = test_algo(funds, algo)
+ts3 = test_algo(funds, algo, "BMS")
+
 Utils.graph("TAA", ts1, ts2, ts3)
 
