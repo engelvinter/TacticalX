@@ -1,4 +1,6 @@
 
+from DateUtil import str_format
+
 class Portfolio :
     def __init__(self, initial_investment):
         self._cash = initial_investment
@@ -58,8 +60,8 @@ class Portfolio :
 
     def decrease_cash(self, amount):
         if self._cash < amount:
-            raise Portfolio.OverdrawOfCash("Cannot decrease cash with {0} (only {1} left)", 
-                                            amount, self._cash)
+            raise Portfolio.OverdrawOfCash("Cannot decrease cash with {0} (only {1} left)".format( 
+                                            amount, self._cash))
 
         self._cash -= amount
 
@@ -75,14 +77,16 @@ class Portfolio :
         value = {}
         value['cash'] = self.current_cash()
         all_shares = self.get_all_fund_shares()
-
+        print(all_shares)
+        
         try:
             for fund_name, shares in all_shares:
                 quote = funds[fund_name].loc[date].quote
                 fund_value = shares * quote
                 value[fund_name] = fund_value
-        except KeyError:
-            raise Portfolio.CalcValueException("Not able to calculate any value {0}", date)
+        except KeyError as e:
+            print(e)
+            raise Portfolio.CalcValueException("Not able to calculate any value {0}".format(date))
 
         return value
 
