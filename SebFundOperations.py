@@ -99,7 +99,15 @@ class SebFundOperations:
 
         return performance.items()
 
-        
+    def calc_shares(self, fund, date, value):
+        quote = fund.loc[date].quote
+        shares = value / quote
+        return shares
+
+    def calc_value(self, fund, date, shares):
+        quote = fund.loc[date].quote
+        value = shares * quote
+        return round(value, 2)
          
             
 

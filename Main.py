@@ -11,6 +11,7 @@ import Simulate
 import BuyAndHold
 import Rebalance
 import SMA10
+import RelativeMomentum
 
 import Market
 
@@ -60,10 +61,16 @@ def setup_sma10():
     algo = SMA10.SMA10(allocation)
     return algo
 
+def setup_rel_mom():
+    allocation = { "SEB Europafond" : 0.5, "SEB Världenfond" : 0.5 }
+    algo = RelativeMomentum.RelativeMomentum(allocation)
+    return algo
+
 def test_collect():
     Utils.collect()
 
 funds = Utils.load_all(["SEB Europafond", "SEB Världenfond", "SEB Hedgefond"])
+
 
 algo = setup_buy_and_hold()
 ts1 = test_algo(funds, algo, "AS")
@@ -74,5 +81,10 @@ ts2 = test_algo(funds, algo, "AS")
 algo = setup_sma10()
 ts3 = test_algo(funds, algo, "BMS")
 
-Utils.graph("TAA", ts1, ts2, ts3)
+
+algo = setup_rel_mom()
+ts4 = test_algo(funds, algo, "BMS")
+
+
+Utils.graph("TAA", ts1, ts2, ts3, ts4)
 

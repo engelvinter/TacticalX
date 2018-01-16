@@ -48,9 +48,9 @@ class Portfolio :
             del self._portfolio[fund_name]
 
     def close_fund(self, fund_name):
-        tmp = self._portfolio[fund_name]
+        shares = self._portfolio[fund_name]
         del self._portfolio[fund_name]
-        return tmp
+        return shares
     
     def increase_cash(self, amount):
         self._cash += amount
@@ -66,9 +66,9 @@ class Portfolio :
         self._cash -= amount
 
     def take_all_cash(self):
-        tmp = self._cash
+        left = self._cash
         self._cash = 0
-        return tmp
+        return round(left, 2)
 
     class CalcValueException(Exception):
         pass
@@ -77,15 +77,13 @@ class Portfolio :
         value = {}
         value['cash'] = self.current_cash()
         all_shares = self.get_all_fund_shares()
-        print(all_shares)
         
         try:
             for fund_name, shares in all_shares:
                 quote = funds[fund_name].loc[date].quote
                 fund_value = shares * quote
-                value[fund_name] = fund_value
+                value[fund_name] = round(fund_value, 2)
         except KeyError as e:
-            print(e)
             raise Portfolio.CalcValueException("Not able to calculate any value {0}".format(date))
 
         return value

@@ -5,7 +5,7 @@ class ProcessReallocations:
     class Reallocation:
         def __init__(self, fund_name, percentage):
             self.fund_name = fund_name
-            self.percentage = percentage
+            self.target = percentage
 
     def __init__(self, funds, portfolio, logger = None):
         self._funds = funds
@@ -21,40 +21,33 @@ class ProcessReallocations:
     def _reinit_allocations(self):
         self._reallocations = []
 
-    def _target_delta(self, date, realloc):
-        current_percentage = self._portfolio.calc_percentage(date, self._funds)
+    # calcs deviation from target (in percentage of portfolio value)
+    def _deviation(self, date, realloc):
+        percentage_funds = self._portfolio.calc_percentage(date, self._funds)
 
-        delta = realloc.percentage
-        if realloc.fund_name in current_percentage:
-            delta = realloc.percentage - current_percentage[realloc.fund_name]
+        deviation = realloc.target
+        if realloc.fund_name in percentage_funds:
+            current = percentage_funds[realloc.fund_name]
+            deviation= realloc.target - current
         
-        return delta
+        return deviation
+    
+    def _generate_order(self, date,  realloc):        
+        if realloc.target == 0.0:
+            # Keep nothing - sell everything in fund
+            self._process_orders.add_sell_all_order(realloc.fund_name)
+            return
 
-    def _calc_amount(self, date, target_delta):
-        value = self._portfolio.calc_value(date, self._funds)
-        total_value = sum(value.values())
-
-        amount = target_delta * total_value
-
-        return amount
-
-    def _generate_order(self, date,  realloc):
         # How far from target are we?
-        target_delta = round(self._target_delta(date, realloc), 1)
-        if target_delta == 0.0:
+        deviation = self._deviation(date, realloc)
+        if round(deviation, 1) == 0.0:
             # Fund allocation already on target!
             return
-        
-        # How much is this delta in portfolio value?
-        amount = round(self._calc_amount(date, target_delta), 1)
-        if amount == 0.0:
-            raise Exception("Internal error. Amount of order is zero - {} {}".
-                            format(realloc.fund_name, date.strftime("%Y-%m-%d")))
 
-        if amount > 0:
-            self._process_orders.add_buy_order(realloc.fund_name, amount)
+        if deviation > 0:
+            self._process_orders.add_buy_order(realloc.fund_name, deviation)
         else:
-            self._process_orders.add_sell_order(realloc.fund_name, abs(amount))
+            self._process_orders.add_sell_order(realloc.fund_name, abs(deviation))
             
     def execute(self, date):
         if not self._reallocations:
@@ -70,7 +63,7 @@ class ProcessReallocations:
                 self._generate_order(date, realloc)
             else:
                 # Put back into reallocation queue
-                self.add_reallocation(realloc.fund_name, realloc.percentage)
+                self.add_reallocation(realloc.fund_name, realloc.target)
 
         # Finally process all sell orders to get cash
         self._process_orders.execute_sell_orders(date)
