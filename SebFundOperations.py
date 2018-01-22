@@ -18,12 +18,15 @@ class SebFundOperations:
         return fund_start, fund_end
 
     def filter_interval(self, funds, start, end):
-        available_funds = []
+        start = assign_date(start)
+        end = assign_date(end)
+
+        available_funds = {}
         for name in funds:
             fund = funds[name]
             (fund_start, fund_end) = self.get_interval(fund)
             if start >= fund_start and end <= fund_end:
-                available_funds.append(name)
+                available_funds[name] = fund
 
         return available_funds
 
@@ -33,10 +36,10 @@ class SebFundOperations:
     # ^   - start
     # SEB - All that starts with SEB 
     def filter_name(self, funds, regexp):
-        filtered_funds = []
+        filtered_funds = {}
         for name in funds:
             if re.match(regexp, name):
-                filtered_funds.append(name)
+                filtered_funds[name] = funds[name]
                 
         return filtered_funds
 
@@ -50,7 +53,7 @@ class SebFundOperations:
             start, end = self.get_interval(fund)
             if start < date and end >= date:
                 try:
-                    idx = fund.index.get_loc(date, method='bfill')
+                    idx = fund.index.get_loc(date, method='ffill')
                     # + 1 since we want to include the last date
                     avail[fund_name] = fund.iloc[:idx + 1]   
                 except ValueError:
@@ -79,7 +82,7 @@ class SebFundOperations:
                                                                              str_format(start_date_fund))
             raise SebFundOperations.NoData(str)
 
-        current_idx = fund.index.get_loc(date, method='bfill')
+        current_idx = fund.index.get_loc(date, method='ffill')
         start_idx = fund.index.get_loc(start_date, method='bfill')
         ret = fund.iloc[current_idx].quote / fund.iloc[start_idx].quote - 1.0
         return ret
@@ -100,12 +103,14 @@ class SebFundOperations:
         return performance.items()
 
     def calc_shares(self, fund, date, value):
-        quote = fund.loc[date].quote
+        idx = fund.index.get_loc(date, method='ffill')
+        quote = fund.iloc[idx].quote
         shares = value / quote
         return shares
 
     def calc_value(self, fund, date, shares):
-        quote = fund.loc[date].quote
+        idx = fund.index.get_loc(date, method='ffill')
+        quote = fund.iloc[idx].quote
         value = shares * quote
         return round(value, 2)
          

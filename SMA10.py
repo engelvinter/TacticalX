@@ -24,7 +24,7 @@ class SMA10:
         for name in self._default:
             try:
                 fund = funds[name]
-                idx = fund.index.get_loc(date, method='bfill')
+                idx = fund.index.get_loc(date, method='ffill')
                 sma10 = fund.iloc[idx].sma10
                 quote = fund.iloc[idx].quote
                 if not numpy.isnan(sma10):

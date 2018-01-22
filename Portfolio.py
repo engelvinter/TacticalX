@@ -1,6 +1,8 @@
 
 from DateUtil import str_format
 
+from SebFundOperations import SebFundOperations
+
 class Portfolio :
     def __init__(self, initial_investment):
         self._cash = initial_investment
@@ -77,12 +79,12 @@ class Portfolio :
         value = {}
         value['cash'] = self.current_cash()
         all_shares = self.get_all_fund_shares()
-        
+        s = SebFundOperations()
+
         try:
             for fund_name, shares in all_shares:
-                quote = funds[fund_name].loc[date].quote
-                fund_value = shares * quote
-                value[fund_name] = round(fund_value, 2)
+                fund = funds[fund_name]
+                value[fund_name] = s.calc_value(fund, date, shares)
         except KeyError as e:
             raise Portfolio.CalcValueException("Not able to calculate any value {0}".format(date))
 

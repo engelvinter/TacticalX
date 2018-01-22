@@ -53,6 +53,8 @@ class ProcessOrders:
     def _calc_value_of_portfolio(self, date, percentage):
         value = self._portfolio.calc_value(date, self._funds)
         total_value = sum(value.values())
+        
+        self._logger.debug("{}".format(value))
 
         amount = percentage * total_value
 
@@ -70,7 +72,15 @@ class ProcessOrders:
         
         return value
 
+    class ValueArgError(Exception):
+        pass
+
     def _buy_fund(self, date, fund_name, value):
+        self._logger.debug("{0} buy fund {1} {2}".format(date, fund_name, value))
+
+        if value == 0:
+            raise ProcessOrders.ValueArgError("Trying to buy for 0 Skr") 
+
         fund = self._funds[fund_name]
         # Calc nbr of shares
         shares = self._fund_ops.calc_shares(fund, date, value)
@@ -124,6 +134,8 @@ class ProcessOrders:
         self._sell_orders = []
 
     def execute_buy_orders(self, date):
+        self._logger.debug("{0} execute_buy_orders".format(date.strftime('%Y-%m-%d')))
+
         for order in self._buy_orders:
             self._execute_buy_order(date, order)
         self._buy_orders = []

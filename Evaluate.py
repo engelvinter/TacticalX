@@ -36,7 +36,7 @@ class Evaluate:
         result = {}
         for start, end in zip(range1, range2):
             start_idx = ts.index.get_loc(start, method = 'bfill')
-            end_idx = ts.index.get_loc(end, method = 'bfill')
+            end_idx = ts.index.get_loc(end, method = 'ffill')
             month_ts = ts.iloc[start_idx:end_idx]
             result[end] = self.total_return(month_ts)
 

@@ -30,7 +30,7 @@ class Simulate:
             self._add_reallocation(date, algorithm)
 
     def execute(self, market):
-        range = pd.date_range(start=self._start_date, end=self._end_date, freq="D").tolist()
+        range = pd.bdate_range(start=self._start_date, end=self._end_date).tolist()
         result = pd.Series(index=range)
 
         for date in range:
