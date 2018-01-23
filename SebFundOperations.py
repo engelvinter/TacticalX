@@ -55,7 +55,10 @@ class SebFundOperations:
                 try:
                     idx = fund.index.get_loc(date, method='ffill')
                     # + 1 since we want to include the last date
-                    avail[fund_name] = fund.iloc[:idx + 1]   
+                    df = fund.iloc[:idx + 1]
+                    # retain the name of the fund
+                    df.name = fund_name
+                    avail[fund_name] = df
                 except ValueError:
                     print("Index error (unordered): {}".format(fund_name))
 
@@ -64,8 +67,8 @@ class SebFundOperations:
     class NoData(Exception):
         pass
 
-    # Calc the return at the given date starting from nbr_days back in time
-    def current_return(self, date, fund, nbr_days):
+    # Calc the return at the given date starting from lookback nbr days in time
+    def current_return(self, date, fund, lookback_nbr_days):
         date = assign_date(date)
 
         # First check that current date (arg) is not after end date of fund
@@ -76,26 +79,38 @@ class SebFundOperations:
             raise SebFundOperations.NoData(str)
 
         # then check that the start date of the evaluation is not before start date of fund
-        start_date = date - datetime.timedelta(nbr_days)
+        start_date = date - datetime.timedelta(lookback_nbr_days)
         if start_date <= start_date_fund:
             str = "The date {} is before the start date of fund ({})".format(str_format(start_date),
                                                                              str_format(start_date_fund))
             raise SebFundOperations.NoData(str)
 
-        current_idx = fund.index.get_loc(date, method='ffill')
+        # Find start index and end index (current index)
         start_idx = fund.index.get_loc(start_date, method='bfill')
+        current_idx = fund.index.get_loc(date, method='ffill')
+        
+        # Calculate the "data coverage" - days with data vs lookback nbr days
+        coverage = (current_idx - start_idx) / (lookback_nbr_days + 1)
+        if coverage < 0.50:
+            str = "{0} Less than 50% data coverage in {1}".format(date, fund.name)
+            raise SebFundOperations.NoData(str)
+
+        # Finally calc the return during the period
         ret = fund.iloc[current_idx].quote / fund.iloc[start_idx].quote - 1.0
+
         return ret
 
     # For all funds - Calc the return at the given date starting from nbr_days back in time
     # Skip those funds that do not have any data during the interval
-    def current_return_funds(self, date, funds, nbr_days):
+    def current_return_funds(self, date, funds, lookback_nbr_days):
         performance = {}
         avail = self.get_available_funds(date, funds)
+        # Iterate through available funds...
         for fund_name in avail:
             try:
                 fund = avail[fund_name]
-                ret = self.current_return(date, fund, nbr_days)
+                # ...getting the return from each fund during the period
+                ret = self.current_return(date, fund, lookback_nbr_days)
                 performance[fund_name] = ret
             except SebFundOperations.NoData:
                 pass

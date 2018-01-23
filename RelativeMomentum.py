@@ -22,7 +22,7 @@ class RelativeMomentum:
 
         ret_funds = self._fund_op.current_return_funds(date, 
                                                        market.get_available_funds(date), 
-                                                       21)                                                
+                                                       30)                                                
         new_alloc = {}
         ret_sorted = sorted(ret_funds, key=lambda x:x[1], reverse=True)
         
