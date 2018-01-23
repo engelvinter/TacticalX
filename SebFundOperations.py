@@ -115,7 +115,7 @@ class SebFundOperations:
             except SebFundOperations.NoData:
                 pass
 
-        return performance.items()
+        return performance
 
     def calc_shares(self, fund, date, value):
         idx = fund.index.get_loc(date, method='ffill')

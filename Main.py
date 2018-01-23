@@ -61,7 +61,7 @@ def setup_sma10():
 
 def setup_rel_mom(logger):
     allocation = { "SEB Europafond" : 0.5, "SEB Världenfond" : 0.5 }
-    algo = RelativeMomentum.RelativeMomentum(allocation)
+    algo = RelativeMomentum.RelativeMomentum(allocation, True)
     algo.set_logger(logger)
     return algo
 
