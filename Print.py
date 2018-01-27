@@ -7,37 +7,16 @@ class Print:
         print("Total return: {:.1f}%".format(self._result.total))
     
     def _print_yearly(self):
+        yearly_formated = self._result.yearly.round(1).astype(str) + '%'
         print("Yearly: ")
-        for date in self._result.yearly:
-            print("{} {:.1f}%".format(date.strftime("%Y"), self._result.yearly[date]))
+        print(yearly_formated)
 
-    def _print_summary_quarter(self):
-        pos = 0
-        neg = 100
-        for quarter in self._result.quarterly:
-            res = self._result.quarterly[quarter]
-            if res < neg:
-                neg = res
-            if res > pos:
-                pos = res
-        print("Worst quarter: {:.1f}%".format(neg))
-        print("Best quarter:  {:.1f}%".format(pos))
-
-    def _print_worst_drawdown(self):
-        neg = 100
-        temp = 0
-        for month in self._result.monthly:
-            res = self._result.monthly[month]
-            if res < 0:
-                temp += res
-            if res >= 0:
-                if temp < neg:
-                    neg = temp
-                temp = 0
-        print("Worst drawdown: {:.1f}%".format(neg))
+    def _print_worst(self):    
+        print("Worst drawdown: {:.1f}%".format(self._result.drawdown))
+        print("Worst year: {:.1f}%".format(self._result.yearly.min()))
+        print("Worst month: {:.1f}%".format(self._result.monthly.min()))
 
     def execute(self):
         self._print_total()
         self._print_yearly()
-        self._print_summary_quarter()
-        self._print_worst_drawdown()
+        self._print_worst()
