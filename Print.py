@@ -5,7 +5,8 @@ class Print:
 
     def _print_total(self):
         print("Total return: {:.1f}%".format(self._result.total))
-    
+        print("CAGR: {:.1f}%".format(self._result.cagr))
+
     def _print_yearly(self):
         yearly_formated = self._result.yearly.round(1).astype(str) + '%'
         print("Yearly: ")
@@ -16,7 +17,11 @@ class Print:
         print("Worst year: {:.1f}%".format(self._result.yearly.min()))
         print("Worst month: {:.1f}%".format(self._result.monthly.min()))
 
+    def _header(self):
+        print("----------------------------------------------------------------")
+
     def execute(self):
+        self._header()
         self._print_total()
         self._print_yearly()
         self._print_worst()

@@ -5,11 +5,12 @@ import empyrical
 
 class Evaluate:
     class Result:
-        def __init__(self, total, yearly, monthly, drawdown):
+        def __init__(self, total, yearly, monthly, drawdown, cagr):
             self.total = total
             self.yearly = yearly
             self.monthly = monthly
             self.drawdown = drawdown
+            self.cagr = cagr
 
     def __init__(self, timeseries):
         self._timeseries = timeseries
@@ -30,6 +31,10 @@ class Evaluate:
         result = empyrical.max_drawdown(daily_change) * 100
         return result
 
+    def cagr(self, daily_change):
+        result = empyrical.cagr(daily_change) * 100
+        return result
+
     def execute(self):
         daily_change = self._timeseries.pct_change()
 
@@ -40,7 +45,9 @@ class Evaluate:
 
         drawdown = self.worst_drawdown(daily_change)
 
-        return Evaluate.Result(total, yearly, monthly, drawdown)
+        cagr = self.cagr(daily_change)
+        
+        return Evaluate.Result(total, yearly, monthly, drawdown, cagr)
 
     
 
