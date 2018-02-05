@@ -57,7 +57,7 @@ class SebLoad:
 
     def _adjust_fund_abnormal(self, df):
         change = df.quote.pct_change()
-        abnormal_change = change[change < -0.1]
+        abnormal_change = change[abs(change) > 0.1]
         for date_index, percent_change in abnormal_change.iteritems():
             #print(index, row)
             updated_rows = df[date_index:].quote / (1 + percent_change)
