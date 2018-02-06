@@ -19,6 +19,7 @@ class Factory:
     def __init__(self):
         self._db_path = os.path.join(".", "db")
         self._graph_path = os.path.join(".", "graph")
+        self._log_path = os.path.join(".","logs")
         self._fund_min_days = 360
 
     def create_downloader(self, date):
@@ -47,10 +48,15 @@ class Factory:
         return SebFundOperations()
 
     def create_logger(self, name):
-        f = logging.FileHandler(name + ".txt", mode='w')
+        if not os.path.exists(self._log_path):
+            os.mkdir(self._log_path)
+
+        filename = "{}/{}.txt".format(self._log_path, name)    
+        f = logging.FileHandler(filename, mode='w')
         l = logging.getLogger(name)
         l.setLevel(logging.INFO)
-        l.addHandler(f)        
+        l.addHandler(f)     
+           
         return l
 
     def create_backtest(self, name, algo, freq, funds):
