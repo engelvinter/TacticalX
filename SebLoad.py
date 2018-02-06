@@ -45,6 +45,8 @@ class SebLoad:
         contains_id_nbr = df.id.apply(lambda x: np.isreal(x)).all()
         if not contains_id_nbr:
             return
+
+        # Detect if Id is changed i.e. fund is recreated to a new fund  
         diff = df.id.diff()
         diff = diff.dropna()
 
@@ -57,6 +59,7 @@ class SebLoad:
 
     def _adjust_fund_abnormal(self, df):
         change = df.quote.pct_change()
+        # Detect if change in fund is more than 10% interday
         abnormal_change = change[abs(change) > 0.1]
         for date_index, percent_change in abnormal_change.iteritems():
             #print(index, row)
