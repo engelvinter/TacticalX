@@ -2,14 +2,16 @@ from datetime import date
 
 import os
 
-import SebDownload
-import SebExtract
-import SebStore
-import SebLoad
-import SebCollect
-import SebGraphDisplay
-import CollectService
-import SebFundOperations
+from SebDownload import SebDownload
+from SebExtract import SebExtract
+from SebStore import SebStore
+from SebLoad import SebLoad
+from SebCollect import SebCollect
+from SebGraphDisplay import SebGraphDisplay
+from CollectService import CollectService
+from SebFundOperations import SebFundOperations
+
+from Backtest import Backtest
 
 import logging
 
@@ -20,34 +22,37 @@ class Factory:
         self._fund_min_days = 360
 
     def create_downloader(self, date):
-        return SebDownload.SebDownload("https://seb.se/pow/fmk/2100", date)
+        return SebDownload("https://seb.se/pow/fmk/2100", date)
     
     def create_extractor(self, content, fund_callback):
-        return SebExtract.SebExtract(content, fund_callback)
+        return SebExtract(content, fund_callback)
 
     def create_storer(self, funds):
-        return SebStore.SebStore(self._db_path, funds)
+        return SebStore(self._db_path, funds)
 
     def create_collector(self, funds):
-        return SebCollect.SebCollect(funds, self)
+        return SebCollect(funds, self)
 
     def create_collect_service(self):
         first_date = date(1999, 2, 25)
-        return CollectService.CollectService(first_date, self._db_path, self)
+        return CollectService(first_date, self._db_path, self)
 
     def create_loader(self, fund_names):
-        return SebLoad.SebLoad(self._db_path, fund_names, self._fund_min_days)
+        return SebLoad(self._db_path, fund_names, self._fund_min_days)
 
     def create_graph_display(self, name):
-        return SebGraphDisplay.SebGraphDisplay(name, self._graph_path)
+        return SebGraphDisplay(name, self._graph_path)
 
     def create_fund_operations(self):
-        return SebFundOperations.SebFundOperations()
+        return SebFundOperations()
 
     def create_logger(self, name):
         f = logging.FileHandler(name + ".txt", mode='w')
         l = logging.getLogger(name)
         l.setLevel(logging.INFO)
-        l.addHandler(f)
-
+        l.addHandler(f)        
         return l
+
+    def create_backtest(self, name, algo, freq, funds):
+        bt = Backtest(name, algo, freq, funds)
+        return bt

@@ -1,72 +1,6 @@
-from datetime import date, datetime
+from datetime import datetime
 
-import Factory as Factory
-
-import Utils
-
-import SebFundOperations
-
-import Simulate
-
-import BuyAndHold
-import Rebalance
-import SMA10
-import RelativeMomentum
-
-import Market
-
-import Portfolio
-
-import Evaluate
-
-import Print
-
-def test_algo(funds, algo, logger, freq):
-    start = datetime(2000, 2, 26)
-    end = datetime(2017, 10, 30)
-    ops = SebFundOperations.SebFundOperations()
-  
-    s = Simulate.Simulate(start, end)
-    s.setup_reallocations(algo, freq)
-
-    p = Portfolio.Portfolio(10000)
-
-    m = Market.Market(funds, p, logger)
-
-    ts = s.execute(m)
-    ts.name = algo.name
-
-    e = Evaluate.Evaluate(ts)
-    result = e.execute()
-
-    pr = Print.Print(result)
-    pr.execute()
-
-    return ts
-
-def setup_buy_and_hold():
-    allocation = { "SEB Europafond" : 0.5, "SEB Världenfond" : 0.5 }
-    algo = BuyAndHold.BuyAndHold(allocation)
-    return algo
-
-def setup_rebalance():
-    allocation = { "SEB Europafond" : 0.33, "SEB Världenfond" : 0.33 }
-    algo = Rebalance.Rebalance(allocation)
-    return algo
-
-def setup_sma10():
-    allocation = { "SEB Europafond" : 0.5, "SEB Världenfond" : 0.5 }
-    algo = SMA10.SMA10(allocation)
-    return algo
-
-def setup_rel_mom(logger):
-    allocation = { "SEB Europafond" : 0.5, "SEB Världenfond" : 0.5 }
-    algo = RelativeMomentum.RelativeMomentum(allocation, True)
-    algo.set_logger(logger)
-    return algo
-
-def test_collect():
-    Utils.collect()
+from Utils import load_all, backtest, graph, Config, MONTHLY, YEARLY
 
 selected = ['SEB Aktiesparfond', 'SEB Emerging Marketsfond', 'SEB Europa Småbolag', 
             'SEB Europafond', 'SEB Fastighetsfond', 'SEB Japanfond', 
@@ -75,23 +9,25 @@ selected = ['SEB Aktiesparfond', 'SEB Emerging Marketsfond', 'SEB Europa Småbol
             'SEB Sverigefond', 'SEB Teknologifond', 'SEB Trygg Placeringsfond', 
             'SEB Världenfond']
 
-funds = Utils.load_all(selected)
+funds = load_all(selected)
 
-f = Factory.Factory()
-logger = f.create_logger("log_rel_mom")
+def mom_rel():
+    log_name = "mom_rel_{}".format(datetime.now().strftime("%Y-%m-%d_%H_%M_%S"))
+    
+    c = Config()
+    c.log_name = log_name
+    c.name = "momentum rel"
+    c.def_alloc = {'SEB Europafond' : 0.5, 'SEB Världenfond' : 0.5 }
+    c.funds = funds
+    c.algo = "mom_rel"
+    c.freq = MONTHLY
+    c.start = "2000-02-26"
+    c.end = "2017-10-30"
 
-algo = setup_buy_and_hold()
-ts1 = test_algo(funds, algo, logger, "AS")
+    ts = backtest(c)
+    return ts
 
-algo = setup_rebalance()
-ts2 = test_algo(funds, algo, logger, "AS")
+ts = mom_rel()
+graph("TAA", ts)
 
-algo = setup_sma10()
-ts3 = test_algo(funds, algo, logger, "BMS")
-
-algo = setup_rel_mom(logger)
-ts4 = test_algo(funds, algo, logger, "BMS")
-
-
-Utils.graph("TAA", ts1, ts2,ts3, ts4)
 

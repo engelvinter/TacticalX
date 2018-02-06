@@ -5,10 +5,20 @@ import os
 
 import pandas as pd
 
-import Factory as Factory
+from Factory import Factory
+from Print import Print
+
+from SMA10 import SMA10
+from Rebalance import Rebalance
+from BuyAndHold import BuyAndHold
+from RelativeMomentum import RelativeMomentum
+
+MONTHLY     = "BMS"
+QUARTERLY   = "BQS"
+YEARLY      = "BAS"
 
 def collect():
-    f = Factory.Factory()
+    f = Factory()
     service = f.create_collect_service()
     service.execute()
 
@@ -18,7 +28,7 @@ def all_fund_names():
     return fund_names
 
 def load_all(fund_names = None):
-    f = Factory.Factory()
+    f = Factory()
     if fund_names is None:
         fund_names = all_fund_names()
     l = f.create_loader(fund_names)
@@ -28,7 +38,7 @@ def load_all(fund_names = None):
 def graph(title, *timeseries_list):
     colors = ["Blue", "Red", "Violet", "Green", "Magenta", "DeepPink", "DarkTurquoise", "DarkOrange"]
     colorNbr = 0
-    f = Factory.Factory()
+    f = Factory()
     g = f.create_graph_display(title)
 
     for timeseries in timeseries_list:
@@ -37,3 +47,35 @@ def graph(title, *timeseries_list):
 
     g.show()
 
+
+class Config:
+    funds       = None
+    def_alloc   = None
+    algo        = None
+    freq        = YEARLY
+    name        = ""
+    start       = None
+    end         = None
+
+algorithms = {  "rebalance" :       lambda alloc : Rebalance(alloc),
+                "sma10" :           lambda alloc : SMA10(alloc),
+                "buy_and_hold" :    lambda alloc : BuyAndHold(alloc),
+                "mom_rel" :         lambda alloc : RelativeMomentum(alloc, True) }
+
+
+def backtest(config):
+    f = Factory()
+    logger = f.create_logger(config.log_name)
+
+    algo = algorithms[config.algo](config.def_alloc)
+    algo.set_logger(logger)
+
+    bt = f.create_backtest(config.name, algo, config.freq, config.funds)
+    bt.set_logger(logger)
+
+    ts, result = bt.execute(config.start, config.end)
+    pr = Print(result)
+    pr.execute()
+
+    
+    return ts

@@ -7,6 +7,9 @@ class SMA10:
         self._default = default_allocation
         self._initial_investing_done = False
         self.name = "SMA10"
+    
+    def set_logger(self, logger):
+        pass
         
     def execute(self, date, market):
         if self._initial_investing_done is False:
