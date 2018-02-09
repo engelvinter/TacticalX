@@ -60,7 +60,7 @@ class Config:
 algorithms = {  "rebalance" :       lambda alloc : Rebalance(alloc),
                 "sma10" :           lambda alloc : SMA10(alloc),
                 "buy_and_hold" :    lambda alloc : BuyAndHold(alloc),
-                "mom_rel" :         lambda alloc : RelativeMomentum(alloc, True) }
+                "mom_rel" :         lambda alloc : RelativeMomentum(alloc) }
 
 
 def backtest(config):
@@ -77,5 +77,4 @@ def backtest(config):
     pr = Print(result)
     pr.execute()
 
-    
     return ts

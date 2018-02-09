@@ -73,10 +73,12 @@ class SebFundOperations:
 
         # First check that current date (arg) is not after end date of fund
         start_date_fund, end_date_fund = self.get_interval(fund)
-        if date > end_date_fund:
-            str = "The date {} is after the end date of fund ({})".format(str_format(date),
-                                                                          str_format(end_date_fund))
-            raise SebFundOperations.NoData(str)
+        # Removed check if after end date. The date range for each fund is shrinked
+        # (get_available_funds) and if holiday the date might be after end_date
+        #if date > end_date_fund:
+        #    str = "The date {} is after the end date of fund ({})".format(str_format(date),
+        #                                                                  str_format(end_date_fund))
+        #    raise SebFundOperations.NoData(str)
 
         # then check that the start date of the evaluation is not before start date of fund
         start_date = date - datetime.timedelta(lookback_nbr_days)
@@ -85,9 +87,16 @@ class SebFundOperations:
                                                                              str_format(start_date_fund))
             raise SebFundOperations.NoData(str)
 
+        # If fund totally off i.e. start date beyond the end date date => skip
+        if start_date > end_date_fund:
+            str = ""
+            raise SebFundOperations.NoData(str)
+
         # Find start index and end index (current index)
         start_idx = fund.index.get_loc(start_date, method='bfill')
-        current_idx = fund.index.get_loc(date, method='ffill')
+        #current_idx = fund.index.get_loc(date, method='ffill')
+        # Use the index of the last value
+        current_idx = fund.shape[0] - 1
         
         # Calculate the "data coverage" - days with data vs lookback nbr days
         coverage = (current_idx - start_idx) / (lookback_nbr_days + 1)
@@ -104,16 +113,17 @@ class SebFundOperations:
     # Skip those funds that do not have any data during the interval
     def current_return_funds(self, date, funds, lookback_nbr_days):
         performance = {}
-        avail = self.get_available_funds(date, funds)
         # Iterate through available funds...
-        for fund_name in avail:
+        for fund_name in funds:
             try:
-                fund = avail[fund_name]
+                fund = funds[fund_name]
                 # ...getting the return from each fund during the period
                 ret = self.current_return(date, fund, lookback_nbr_days)
                 performance[fund_name] = ret
-            except SebFundOperations.NoData:
+            except SebFundOperations.NoData as e:
                 pass
+            except KeyError as e:
+                raise
 
         return performance
 
