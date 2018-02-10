@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from Utils import load_all, backtest, graph, Config, MONTHLY, YEARLY
+from Utils import load_all, backtest, graph, Config, MONTHLY, YEARLY, QUARTERLY
 
 selected = ['SEB Aktiesparfond', 'SEB Emerging Marketsfond', 'SEB Europa Småbolag', 
             'SEB Europafond', 'SEB Fastighetsfond', 'SEB Japanfond', 
@@ -21,13 +21,14 @@ def mom_rel():
     c.funds = funds
     c.algo = "mom_rel"
     c.freq = MONTHLY
-    c.start = "2000-02-26"
+    c.start = "2009-02-26"
     c.end = "2017-10-30"
 
     ts = backtest(c)
     return ts
 
 ts = mom_rel()
-graph("TAA", ts)
+#g = graph("TAA", ts)
+#g.show()
 
 

@@ -5,6 +5,8 @@ import os
 
 import pandas as pd
 
+from datetime import datetime
+
 from Factory import Factory
 from Print import Print
 
@@ -35,17 +37,17 @@ def load_all(fund_names = None):
     funds = l.execute()
     return funds
 
-def graph(title, *timeseries_list):
+def graph(title, dir_name, *timeseries_list):
     colors = ["Blue", "Red", "Violet", "Green", "Magenta", "DeepPink", "DarkTurquoise", "DarkOrange"]
     colorNbr = 0
     f = Factory()
-    g = f.create_graph_display(title)
+    g = f.create_graph_display(title, dir_name)
 
     for timeseries in timeseries_list:
         g.add_timeseries(timeseries, colors[colorNbr % len(colors)])
         colorNbr += 1
 
-    g.show()
+    return g
 
 
 class Config:
@@ -64,8 +66,10 @@ algorithms = {  "rebalance" :       lambda alloc : Rebalance(alloc),
 
 
 def backtest(config):
-    f = Factory()
-    logger = f.create_logger(config.log_name)
+    dir_name = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
+
+    f = Factory()    
+    logger = f.create_logger(dir_name)
 
     algo = algorithms[config.algo](config.def_alloc)
     algo.set_logger(logger)
@@ -74,7 +78,11 @@ def backtest(config):
     bt.set_logger(logger)
 
     ts, result = bt.execute(config.start, config.end)
-    pr = Print(result)
-    pr.execute()
+
+    printer = f.create_printer(result, dir_name)
+    printer.execute()
+
+    g = graph(config.name, dir_name, ts)
+    g.create_file()
 
     return ts
