@@ -9,7 +9,7 @@ selected = ['SEB Aktiesparfond', 'SEB Emerging Marketsfond', 'SEB Europa Småbol
             'SEB Sverigefond', 'SEB Teknologifond', 'SEB Trygg Placeringsfond', 
             'SEB Världenfond']
 
-funds = load_all()
+funds = load_all(*selected)
 
 def mom_rel():
     log_name = "mom_rel_{}".format(datetime.now().strftime("%Y-%m-%d_%H_%M_%S"))

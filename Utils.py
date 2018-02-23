@@ -3,6 +3,8 @@ import glob
 import os.path
 import os
 
+import re
+
 import pandas as pd
 
 from datetime import datetime
@@ -40,16 +42,23 @@ def collect():
     service = f.create_collect_service()
     service.execute()
 
-def all_fund_names():
+def all_fund_names(regexp = ".*"):
     files = glob.glob("./db/*.csv")
-    fund_names = [os.path.splitext(os.path.basename(file_name))[0] for file_name in files]
+    extract_base = lambda fullpath :  os.path.splitext(os.path.basename(fullpath))[0]
+    all_fund_names = [extract_base(fullpath) for fullpath in files]
+    fund_names = [name for name in all_fund_names if re.match(regexp, name)]
     return fund_names
 
-def load_all(fund_names = None):
+def load_all(*fund_names):
     f = Factory()
-    if fund_names is None:
-        fund_names = all_fund_names()
-    l = f.create_loader(fund_names)
+    
+    names_to_load = []
+    if len(fund_names) is 0:
+        names_to_load = all_fund_names()
+    else:
+        names_to_load = all_fund_names("|".join(fund_names))
+        
+    l = f.create_loader(names_to_load)
     funds = l.execute()
     return funds
 
