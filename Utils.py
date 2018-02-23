@@ -19,6 +19,22 @@ MONTHLY     = "BMS"
 QUARTERLY   = "BQS"
 YEARLY      = "BAS"
 
+class Config:
+    funds       = None
+    def_alloc   = None
+    algo        = None
+    freq        = YEARLY
+    name        = ""
+    start       = None
+    end         = None
+
+_algorithms = {  
+                "rebalance" :       lambda alloc : Rebalance(alloc),
+                "sma10" :           lambda alloc : SMA10(alloc),
+                "buy_and_hold" :    lambda alloc : BuyAndHold(alloc),
+                "mom_rel" :         lambda alloc : RelativeMomentum(alloc)
+              }
+
 def collect():
     f = Factory()
     service = f.create_collect_service()
@@ -37,33 +53,20 @@ def load_all(fund_names = None):
     funds = l.execute()
     return funds
 
-def graph(title, dir_name, *timeseries_list):
+def graph(title, *timeseries_list, dir_name = "temp", normalize = True):
     colors = ["Blue", "Red", "Violet", "Green", "Magenta", "DeepPink", "DarkTurquoise", "DarkOrange"]
     colorNbr = 0
     f = Factory()
     g = f.create_graph_display(title, dir_name)
 
     for timeseries in timeseries_list:
-        g.add_timeseries(timeseries, colors[colorNbr % len(colors)])
+        ts = timeseries
+        if normalize:
+            ts = timeseries / timeseries[0]
+        g.add_timeseries(ts, colors[colorNbr % len(colors)])
         colorNbr += 1
 
     return g
-
-
-class Config:
-    funds       = None
-    def_alloc   = None
-    algo        = None
-    freq        = YEARLY
-    name        = ""
-    start       = None
-    end         = None
-
-algorithms = {  "rebalance" :       lambda alloc : Rebalance(alloc),
-                "sma10" :           lambda alloc : SMA10(alloc),
-                "buy_and_hold" :    lambda alloc : BuyAndHold(alloc),
-                "mom_rel" :         lambda alloc : RelativeMomentum(alloc) }
-
 
 def backtest(config):
     dir_name = datetime.now().strftime("%Y-%m-%d_%H_%M_%S")
@@ -71,7 +74,7 @@ def backtest(config):
     f = Factory()    
     logger = f.create_logger(dir_name)
 
-    algo = algorithms[config.algo](config.def_alloc)
+    algo = _algorithms[config.algo](config.def_alloc)
     algo.set_logger(logger)
 
     bt = f.create_backtest(config.name, algo, config.freq, config.funds)

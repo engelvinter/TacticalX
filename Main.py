@@ -9,7 +9,7 @@ selected = ['SEB Aktiesparfond', 'SEB Emerging Marketsfond', 'SEB Europa Småbol
             'SEB Sverigefond', 'SEB Teknologifond', 'SEB Trygg Placeringsfond', 
             'SEB Världenfond']
 
-funds = load_all(selected)
+funds = load_all()
 
 def mom_rel():
     log_name = "mom_rel_{}".format(datetime.now().strftime("%Y-%m-%d_%H_%M_%S"))
@@ -21,14 +21,12 @@ def mom_rel():
     c.funds = funds
     c.algo = "mom_rel"
     c.freq = MONTHLY
-    c.start = "2009-02-26"
+    c.start = "2000-02-26"
     c.end = "2017-10-30"
 
     ts = backtest(c)
     return ts
 
 ts = mom_rel()
-#g = graph("TAA", ts)
-#g.show()
 
 
